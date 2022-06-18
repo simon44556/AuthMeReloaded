@@ -299,7 +299,12 @@ public class AsynchronousLogin implements AsynchronousProcess {
             playerCache.updatePlayer(auth);
             dataSource.setLogged(name);
             sessionService.grantSession(name);
-            bungeeSender.sendAuthMeBungeecordMessage(MessageType.LOGIN, name);
+            
+            // Delay the execution of message sending by a few ticks so player login is processed correctly
+            Runnable sendBungeeMessageLogin = () -> {
+                bungeeSender.sendAuthMeBungeecordMessage(MessageType.LOGIN, name);
+            };
+            bukkitService.runTaskLater(sendBungeeMessageLogin, 10L);
 
             // As the scheduling executes the Task most likely after the current
             // task, we schedule it in the end
